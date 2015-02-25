@@ -85,7 +85,7 @@ class TestNonAjaxMode(TestCase):
             "The redirect destination should be prefixed with /#/"
         )
 
-    def test_redirection_raw_with_child(self):
+    def test_child_redirection_raw(self):
         '''
         The response should be HttpResponseRedirect prefixed with /#
         '''
@@ -123,7 +123,7 @@ class TestNonAjaxMode(TestCase):
             "The path should be prefixed with /test_prefix/#"
         )
 
-    def test_redirection_prefix_with_child(self):
+    def test_child_redirection_prefix(self):
         '''
         The response should be HttpResponseRedirect
         prefixed with /test_prefix/#
