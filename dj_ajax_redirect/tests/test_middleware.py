@@ -29,6 +29,7 @@ class TestAjaxMode(TestCase):
         sys.path.append(TESTS_DIR)
         os.environ["DJANGO_SETTINGS_MODULE"] = "setting_mock"
         self.request = HTTPRequest(True, "/test")
+
     def tearDown(self):
         '''
         Tear Down function
@@ -84,9 +85,29 @@ class TestNonAjaxMode(TestCase):
             "The redirect destination should be prefixed with /#/"
         )
 
+    def test_redirection_raw_with_child(self):
+        '''
+        The response should be HttpResponseRedirect prefixed with /#
+        '''
+        from django.conf import settings
+        setattr(settings, "AJAX_REDIRECTION_PREFIX", None)
+        self.request = HTTPRequest(False, self.path + "/test2")
+        response = AjaxRedirectionMiddleware().process_request(self.request)
+        self.assertIsInstance(
+            response,
+            HttpResponseRedirect,
+            "Response should be an instance of HttpResponseRedirect"
+        )
+        self.assertEqual(
+            response.url,
+            "/#" + self.path + "/test2",
+            "The redirect destination should be prefixed with /#/"
+        )
+
     def test_redirection_prefix(self):
         '''
-        The response should be HttpResponseRedirect prefixed with /test/#
+        The response should be HttpResponseRedirect
+        prefixed with /test_prefix/#
         '''
         from django.conf import settings
         setattr(settings, "AJAX_REDIRECTION_PREFIX", "/test_prefix")
@@ -100,6 +121,26 @@ class TestNonAjaxMode(TestCase):
             response.url,
             "/test_prefix/#" + self.path,
             "The path should be prefixed with /test_prefix/#"
+        )
+
+    def test_redirection_prefix_with_child(self):
+        '''
+        The response should be HttpResponseRedirect
+        prefixed with /test_prefix/#
+        '''
+        from django.conf import settings
+        setattr(settings, "AJAX_REDIRECTION_PREFIX", "/test_prefix")
+        self.request = HTTPRequest(False, self.path + "/test2")
+        response = AjaxRedirectionMiddleware().process_request(self.request)
+        self.assertIsInstance(
+            response,
+            HttpResponseRedirect,
+            "Response should be an instance of HttpResponseRedirect"
+        )
+        self.assertEqual(
+            response.url,
+            "/test_prefix/#" + self.path + "/test2",
+            "The redirect destination should be prefixed with /#/"
         )
 
     def test_root_not_redirect(self):
