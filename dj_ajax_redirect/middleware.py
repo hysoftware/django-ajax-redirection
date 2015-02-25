@@ -20,11 +20,17 @@ class AjaxRedirectionMiddleware(object):
         Before request wrapper
         '''
         # pylint: disable=no-self-use
-        if not request.is_ajax():
+        prefix = (
+            getattr(
+                settings,
+                "AJAX_REDIRECTION_PREFIX",
+                None
+            ) or "/"
+        )
+
+        if not request.is_ajax() and request.get_full_path() != prefix:
+            if not prefix.endswith("/"):
+                prefix = prefix + "/"
             return HttpResponseRedirect(
-                (getattr(
-                    settings,
-                    "AJAX_REDIRECTION_PREFIX",
-                    None
-                ) or "") + "/#" + request.get_full_path()
+                prefix + "#" + request.get_full_path()
             )
