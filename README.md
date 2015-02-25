@@ -1,5 +1,7 @@
 # Ajax redirection wrappers/middleware for Django
 
+[![Code Health](https://landscape.io/github/hysoftware/django-ajax-redirection/master/landscape.svg?style=flat)](https://landscape.io/github/hysoftware/django-ajax-redirection/master)
+
 ## What this?
 This is a collection of useful wrappers/middlware for Django with Ajax.
 For example, [AngularJS](https://angularjs.org/) has URL routing subsystem,
