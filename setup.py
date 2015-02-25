@@ -13,7 +13,7 @@ with open("README.md") as readme:
     LONG_DESC = readme.read()
 
 setup(
-    name="djajaxredirection",
+    name="django-ajax-redirection",
     version="1.0.0",
     author="Hiroaki Yamamoto",
     author_email="admin@hysoftware.net",
@@ -21,8 +21,7 @@ setup(
     description="Useful wrappers/middleware for django",
     long_description=LONG_DESC,
     license="MIT",
-    packages=["djajaxredirection"],
-    py_modules=find_packages(),
+    packages=find_packages(),
     classifiers=[
         "Development Status :: 4 - Beta",
         "Environment :: Web Environment",

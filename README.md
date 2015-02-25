@@ -18,8 +18,8 @@ This module provides wrappers/middleware to avoid the problem.
 
 ## How to use
 ### Middleware
-1. Add ```djajax.middleware.AjaxRedirectionMiddleware``` to ```MIDDLEWARE_CLASSES```
-on your setting.
+1. Add ```dj_ajax_redirect.middleware.AjaxRedirectionMiddleware```
+to ```MIDDLEWARE_CLASSES``` on your setting.
 
 ### Wrapper
 WIP
