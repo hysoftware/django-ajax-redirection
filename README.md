@@ -1,5 +1,6 @@
 # Ajax redirection wrappers/middleware for Django
 
+[![Build Status](https://travis-ci.org/hysoftware/django-ajax-redirection.svg)](https://travis-ci.org/hysoftware/django-ajax-redirection)
 [![Code Health](https://landscape.io/github/hysoftware/django-ajax-redirection/master/landscape.svg?style=flat)](https://landscape.io/github/hysoftware/django-ajax-redirection/master)
 
 ## What this?
