@@ -53,6 +53,13 @@ class TestNonAjaxMode(TestCase):
         '''
         self.request = HTTPRequest(False, self.path)
 
+    def tearDown(self):
+        from django.conf import settings
+        if hasattr(settings, "AJAX_REDIRECTION_PREFIX"):
+            delattr(settings, "AJAX_REDIRECTION_PREFIX")
+        if hasattr(settings, "DISABLE_REDIRECT"):
+            delattr(settings, "DISABLE_REDIRECT")
+
     def test_redirection_raw(self):
         '''
         The response should be HttpResponseRedirect prefixed with /#
@@ -162,3 +169,130 @@ class TestNonAjaxMode(TestCase):
         )
         response = AjaxRedirectionMiddleware().process_request(self.request)
         self.assertIsNone(response, "Response should be None")
+
+    def test_redirection_disable(self):
+        '''
+        Accessing somewhere not listed on the disable list,
+        the middleware should redirect
+        '''
+        from django.conf import settings
+        setattr(
+            settings,
+            "DISABLE_REDIRECT",
+            [
+                r"^disable_redirection",
+                r"^also_disable_redirection"
+            ]
+        )
+        response = AjaxRedirectionMiddleware().process_request(self.request)
+        self.assertIsInstance(
+            response,
+            HttpResponseRedirect,
+            "The response should be HttpResponseRedirect"
+        )
+        self.assertEqual(
+            response.url,
+            "/#" + self.path,
+            "The path should be prefixed with /#"
+        )
+
+    def test_disable_redirection(self):
+        '''
+        Accessing somewhere listed on the disable list,
+        the middleware shouldn't redirect
+        '''
+        from django.conf import settings
+        setattr(
+            settings,
+            "DISABLE_REDIRECT",
+            [
+                r"^disable_redirection",
+                r"^also_disable_redirection"
+            ]
+        )
+        self.request = HTTPRequest(
+            False,
+            "/also_disable_redirection/test?num=5585"
+        )
+        response = AjaxRedirectionMiddleware().process_request(self.request)
+        self.assertIsNone(response)
+
+    def test_disable_redirection_cp(self):
+        '''
+        Accessing somewhere listed on the disable list,
+        the middleware shouldn't redirect (Complex ver.)
+        '''
+        from django.conf import settings
+        setattr(
+            settings,
+            "DISABLE_REDIRECT",
+            [
+                r"^disable_redirection/test[1-9]{3}/article[s]{0,1}/[0-9]{5}",
+                r"^disable_redirection/test[1-9]{5,8}/.$"
+            ]
+        )
+        self.request = HTTPRequest(
+            False,
+            "/disable_redirection/test?num=5585"
+        )
+        response = AjaxRedirectionMiddleware().process_request(self.request)
+        self.assertIsInstance(
+            response,
+            HttpResponseRedirect,
+            "The response should be HttpResponseRedirect"
+        )
+        self.assertEqual(
+            response.url,
+            "/#/disable_redirection/test?num=5585",
+            "The path should be prefixed with /#"
+        )
+        self.request = HTTPRequest(
+            False,
+            "/disable_redirection/test567/articles/05895"
+        )
+        response = AjaxRedirectionMiddleware().process_request(self.request)
+        self.assertIsNone(response)
+        self.request = HTTPRequest(
+            False,
+            "/disable_redirection/test567/articles/05895/images/test.jpg"
+        )
+        response = AjaxRedirectionMiddleware().process_request(self.request)
+        self.assertIsNone(response)
+        self.request = HTTPRequest(
+            False,
+            "/disable_redirection/test5675/articles/05895/images/test.jpg"
+        )
+        response = AjaxRedirectionMiddleware().process_request(self.request)
+        self.assertIsInstance(
+            response,
+            HttpResponseRedirect,
+            "The response should be HttpResponseRedirect"
+        )
+        self.assertEqual(
+            response.url,
+            "/#/disable_redirection/test5675/articles/05895/images/test.jpg",
+            "The path should be prefixed with /#"
+        )
+
+        self.request = HTTPRequest(
+            False,
+            "/disable_redirection/test56675/articles/05895/images/test.jpg"
+        )
+        response = AjaxRedirectionMiddleware().process_request(self.request)
+        self.assertIsInstance(
+            response,
+            HttpResponseRedirect,
+            "The response should be HttpResponseRedirect"
+        )
+        self.assertEqual(
+            response.url,
+            "/#/disable_redirection/test56675/articles/05895/images/test.jpg",
+            "The path should be prefixed with /#"
+        )
+
+        self.request = HTTPRequest(
+            False,
+            "/disable_redirection/test56675/b"
+        )
+        response = AjaxRedirectionMiddleware().process_request(self.request)
+        self.assertIsNone(response)

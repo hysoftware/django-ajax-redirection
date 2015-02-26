@@ -5,6 +5,8 @@
 Django Ajax Redirection Middleware
 '''
 
+import re
+
 from django.http import HttpResponseRedirect
 from django.conf import settings
 
@@ -32,6 +34,11 @@ class AjaxRedirectionMiddleware(object):
 
         for static_url in staticfiles_urlpatterns():
             if static_url.resolve(request.get_full_path()[1:]):
+                return None
+
+        for black_url_str in getattr(settings, "DISABLE_REDIRECT", []):
+            black_url = re.compile(black_url_str)
+            if black_url.search(request.get_full_path()[1:]):
                 return None
 
         if not request.is_ajax() and request.get_full_path() != prefix:
