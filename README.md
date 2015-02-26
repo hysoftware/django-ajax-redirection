@@ -25,4 +25,16 @@ to ```MIDDLEWARE_CLASSES``` on your setting.
 WIP
 
 ## Disable redirection
-WIP
+### Middleware
+Just add a new item named "DISABLE_REDIRECT", of which type is list. i.e. just like this:
+
+~~~~
+DISABLE_REDIRECT = [
+    r"^path_to_disable_redirect/disable$"
+]
+~~~~
+
+Note that static files are already added to disable list. Therefore, you don't need to add
+static urls.
+
+In addition, *the strings are treated as regexp-s*.
