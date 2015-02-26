@@ -20,6 +20,8 @@ class AjaxRedirectionMiddleware(object):
         Before request wrapper
         '''
         # pylint: disable=no-self-use
+        from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+
         prefix = (
             getattr(
                 settings,
@@ -27,6 +29,10 @@ class AjaxRedirectionMiddleware(object):
                 None
             ) or "/"
         )
+
+        for static_url in staticfiles_urlpatterns():
+            if static_url.resolve(request.get_full_path()[1:]):
+                return None
 
         if not request.is_ajax() and request.get_full_path() != prefix:
             if not prefix.endswith("/"):

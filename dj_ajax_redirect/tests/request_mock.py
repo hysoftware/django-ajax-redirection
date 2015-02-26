@@ -13,18 +13,18 @@ class HTTPRequest(object):
     url = None
     ajax = False
 
-    def is_ajax(self):
-        '''
-        Returns is_ajax
-        '''
-        return self.ajax
-
     def __init__(self, ajax, path):
         '''
         Constructor
         '''
         self.ajax = ajax
         self.url = path
+
+    def is_ajax(self):
+        '''
+        Returns is_ajax
+        '''
+        return self.ajax
 
     def get_full_path(self):
         '''

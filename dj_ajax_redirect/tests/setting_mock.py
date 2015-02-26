@@ -10,3 +10,4 @@ DATABASES = {
         'NAME': "hysoft.db"
     }
 }
+STATIC_URL = '/static/'

@@ -14,6 +14,10 @@ from django.http import HttpResponseRedirect
 from ..tests import TESTS_DIR
 from .request_mock import HTTPRequest
 from ..middleware import AjaxRedirectionMiddleware
+from django.test.utils import setup_test_environment
+sys.path.append(TESTS_DIR)
+os.environ["DJANGO_SETTINGS_MODULE"] = "setting_mock"
+setup_test_environment()
 
 
 class TestAjaxMode(TestCase):
@@ -26,16 +30,7 @@ class TestAjaxMode(TestCase):
         '''
         Setup function
         '''
-        sys.path.append(TESTS_DIR)
-        os.environ["DJANGO_SETTINGS_MODULE"] = "setting_mock"
         self.request = HTTPRequest(True, "/test")
-
-    def tearDown(self):
-        '''
-        Tear Down function
-        '''
-        sys.path.remove(TESTS_DIR)
-        del os.environ["DJANGO_SETTINGS_MODULE"]
 
     def test_not_redirection(self):
         '''
@@ -57,15 +52,6 @@ class TestNonAjaxMode(TestCase):
         Setup function
         '''
         self.request = HTTPRequest(False, self.path)
-        sys.path.append(TESTS_DIR)
-        os.environ["DJANGO_SETTINGS_MODULE"] = "setting_mock"
-
-    def tearDown(self):
-        '''
-        Tear Down function
-        '''
-        sys.path.remove(TESTS_DIR)
-        del os.environ["DJANGO_SETTINGS_MODULE"]
 
     def test_redirection_raw(self):
         '''
@@ -159,5 +145,20 @@ class TestNonAjaxMode(TestCase):
         '''
         from django.conf import settings
         setattr(settings, "AJAX_REDIRECTION_PREFIX", "/test")
+        response = AjaxRedirectionMiddleware().process_request(self.request)
+        self.assertIsNone(response, "Response should be None")
+
+    def test_static_file_root(self):
+        '''
+        The response shouldn't redirect when accessing static file of /.
+        '''
+        from django.conf import settings
+        static_path = getattr(settings, "STATIC_URL", None)
+        self.assertIsNotNone(static_path)
+
+        self.request = HTTPRequest(
+            False,
+            os.path.join(static_path, "js", "test.js")
+        )
         response = AjaxRedirectionMiddleware().process_request(self.request)
         self.assertIsNone(response, "Response should be None")
